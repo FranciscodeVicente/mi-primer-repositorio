@@ -1,0 +1,340 @@
+package indios_vaqueros;
+
+import java.util.Random; //para generar numeros aleatorios
+import java.util.Scanner; // leer datos por teclado/
+
+/**
+ *
+ * @author Pablo de Vicente Joven 
+ */
+
+public class IndiosVaqueros {
+
+    public static void main(String[] args) {
+
+        //CLASES DE UTILIDAD
+        
+        Scanner read = new Scanner(System.in);
+        Random random = new Random();
+
+        //CONSTANTES
+        final int FILAS = 5; // numero filas jugador
+        final int COLUMNAS = 5;//numero columnas jugador
+        final int VIDAS = 3;//numero vidas jugador
+        final int NUM_INDIOS = 5;
+        final int NUM_VAQUEROS = 5;
+        final char LIBRE = 'L'; // espacio libre se rellena de L
+        final char INDIO = 'I'; // espacio ocupado por Indios
+        final char VAQUERO = 'V'; // espacio ocupado por vaqueros
+
+        final char ARRIBA = 'W'; //movimiento hacia arriba (W)
+        final char IZQUIERDA = 'A'; //movimiento hacia la derecha (A)
+        final char ABAJO = 'S'; //movimiento hacia abajo (S)
+        final char DERECHA = 'D'; //movimiento hacia la derecha (D)
+
+        //VARIABLES
+        int vidasIndio = VIDAS; //vidas Indio
+        int vidasVaquero = VIDAS; //vidas vaquero
+        int filaIndio, columnaIndio; //fila y columna indio
+        int filaVaquero, columnaVaquero; //fila y columna vaquero
+
+        char controlIndio; 
+        char controlVaquero;
+
+        //Generar tableros
+        char[][] tableroIndio = new char[FILAS][COLUMNAS];
+        char[][] tableroVaquero = new char[FILAS][COLUMNAS];
+
+        /**
+         * *******CREAR LOS TABLEROS DE JUEGO************
+         */
+        //Crear el tablero para el INDIO con la funciÃ³n inicializarMatriz linea(322)
+        inicializarMatriz(tableroIndio, LIBRE);
+
+        //Crear tablero para el vaquero con la funciÃ³n inicializarMatriz linea (322)
+        inicializarMatriz(tableroVaquero, LIBRE);
+
+        /**
+         * *******SITUAR INDIOS Y VAQUEROS************
+         */
+        //Situar al jugador en una posicion aleatoria del tablero
+        filaIndio = random.nextInt(FILAS);
+        columnaIndio = random.nextInt(COLUMNAS);
+        filaVaquero = random.nextInt(FILAS);
+        columnaVaquero = random.nextInt(COLUMNAS);
+
+        tableroIndio[filaIndio][columnaIndio] = INDIO;
+        tableroVaquero[filaVaquero][columnaVaquero] = VAQUERO;
+
+        //Situar a los 5 ENEMIGOS de cada TRIBU- Para ello utilizamos la funcion situarPersonajes (331)
+        //Enemigos Vaqueros en el tablero INDIO: 
+        situarPersonajes(tableroIndio, VAQUERO, NUM_VAQUEROS, LIBRE);
+
+        //Enemigos Indios en el tablero VAQUERO:
+        situarPersonajes(tableroVaquero, INDIO, NUM_INDIOS, LIBRE);
+
+        /**
+         * *******CONTROLES Y TURNOS DE CADA JUGADOR************
+         */
+        //Sentencia while
+        while (vidasIndio > 0 && vidasVaquero > 0) {
+
+            boolean errorEntrada = false;
+            do {
+                System.out.println("-TURNO DEL INDIO---");
+
+                //Imprimir los tableros INDIO
+                mostrarTablero(tableroIndio, INDIO);
+
+                // MOVIMIENTO INDIO
+                System.out.println("Turno del Indio (W A S D): ");
+                controlIndio = read.nextLine().toUpperCase().charAt(0);
+                switch (controlIndio) {
+
+                    case ARRIBA:    //Arriba
+
+                        // Compruebo si esta dentro del limite del tablero con la funciÃ³n dentroLimite (300)
+                        if (dentroLimite(tableroIndio, filaIndio - 1, columnaIndio)) {
+
+                            if (tableroIndio[filaIndio - 1][columnaIndio] == VAQUERO) {
+                                vidasIndio--;
+                                System.out.println("vidas del indio: " + vidasIndio);
+                            }
+                            tableroIndio[filaIndio - 1][columnaIndio] = INDIO;
+                            tableroIndio[filaIndio][columnaIndio] = LIBRE;
+                            filaIndio--;
+
+                            errorEntrada = false;
+                        } else {
+                            System.out.println("Te has salido del tablero");
+                            errorEntrada = true;
+                        }
+
+                        break;
+                    case IZQUIERDA:         //Izquierda
+
+                        // Compruebo si esta dentro del limite del tablero
+                        if (dentroLimite(tableroIndio, filaIndio, columnaIndio - 1)) {
+
+                            if (tableroIndio[filaIndio][columnaIndio - 1] == VAQUERO) {
+
+                                vidasIndio--;
+                                System.out.println("vidas del indio: " + vidasIndio);
+
+                            }
+                            tableroIndio[filaIndio][columnaIndio - 1] = INDIO;
+                            tableroIndio[filaIndio][columnaIndio] = LIBRE;
+                            columnaIndio--;
+                            errorEntrada = false;
+                        } else {
+                            System.out.println("Te has salido del tablero");
+                            errorEntrada = true;
+                        }
+
+                        break;
+
+                    case ABAJO: //Abajo
+
+                        // Compruebo si esta dentro del limite del tablero
+                        if (dentroLimite(tableroIndio, filaIndio + 1, columnaIndio)) {
+
+                            if (tableroIndio[filaIndio + 1][columnaIndio] == VAQUERO) {
+
+                                vidasIndio--;
+                                System.out.println("vidas del indio: " + vidasIndio);
+
+                            }
+                            tableroIndio[filaIndio + 1][columnaIndio] = INDIO;
+                            tableroIndio[filaIndio][columnaIndio] = LIBRE;
+                            filaIndio++;
+                            errorEntrada = false;
+                        } else {
+                            System.out.println("Te has salido del tablero");
+                            errorEntrada = true;
+                        }
+
+                        break;
+                    case DERECHA: //Derecha
+
+                        // Compruebo si esta dentro del limite del tablero
+                        if (dentroLimite(tableroIndio, filaIndio, columnaIndio + 1)) {
+
+                            if (tableroIndio[filaIndio][columnaIndio + 1] == VAQUERO) {
+
+                                vidasIndio--;
+                                System.out.println("vidas del indio: " + vidasIndio);
+
+                            }
+                            tableroIndio[filaIndio][columnaIndio + 1] = INDIO;
+                            tableroIndio[filaIndio][columnaIndio] = LIBRE;
+                            columnaIndio++;
+                            errorEntrada = false;
+                        } else {
+                            System.out.println("Te has salido del tablero");
+                            errorEntrada = true;
+                        }
+
+                        break;
+                    default:
+                        System.out.println("----INTRODUCE LA TECLA CORRECTA----");
+                        errorEntrada = true;
+                }
+
+            } while (errorEntrada);
+            if (vidasIndio != 0) {
+
+                errorEntrada = false;
+
+                do {
+                    System.out.println("---TURNO DEL VAQUERO-----");
+
+                    mostrarTablero(tableroVaquero, VAQUERO);
+
+                    System.out.println("Turno del Vaquero (W A S D): ");
+                    controlVaquero = read.nextLine().toUpperCase().charAt(0);
+                    switch (controlVaquero) {
+                        case ARRIBA:
+
+                            // Compruebo si esta dentro del limite del tablero
+                            if (dentroLimite(tableroVaquero, filaVaquero - 1, columnaVaquero)) {
+
+                                if (tableroVaquero[filaVaquero - 1][columnaVaquero] == INDIO) {
+
+                                    vidasVaquero--;
+                                    System.out.println("vidas del Vaquero: " + vidasVaquero);
+
+                                }
+                                tableroVaquero[filaVaquero - 1][columnaVaquero] = VAQUERO;
+                                tableroVaquero[filaVaquero][columnaVaquero] = LIBRE;
+                                filaVaquero--;
+                                errorEntrada = false;
+                            } else {
+                                System.out.println("Te has salido del tablero");
+                                errorEntrada = true;
+                            }
+
+                            break;
+
+                        case IZQUIERDA://Izquierda//
+
+                            // Compruebo si esta dentro del limite del tablero
+                            if (dentroLimite(tableroVaquero, filaVaquero, columnaVaquero - 1)) {
+
+                                if (tableroVaquero[filaVaquero][columnaVaquero - 1] == INDIO) {
+                                    vidasVaquero--;
+                                    System.out.println("vidas del Vaquero: " + vidasVaquero);
+                                }
+                                tableroVaquero[filaVaquero][columnaVaquero - 1] = VAQUERO;
+                                tableroVaquero[filaVaquero][columnaVaquero] = LIBRE;
+                                columnaVaquero--;
+                                errorEntrada = false;
+                            } else {
+                                System.out.println("Te has salido del tablero");
+                                errorEntrada = true;
+                            }
+
+                            break;
+
+                        case ABAJO://Abajo
+
+                            // Compruebo si esta dentro del limite del tablero
+                            if (dentroLimite(tableroVaquero, filaVaquero + 1, columnaVaquero)) {
+
+                                if (tableroVaquero[filaVaquero + 1][columnaVaquero] == INDIO) {
+                                    vidasVaquero--;
+                                    System.out.println("vidas del Vaquero: " + vidasVaquero);
+                                }
+                                tableroVaquero[filaVaquero + 1][columnaVaquero] = VAQUERO;
+                                tableroVaquero[filaVaquero][columnaVaquero] = LIBRE;
+                                filaVaquero++;
+                                errorEntrada = false;
+                            } else {
+                                System.out.println("Te has salido del tablero");
+                                errorEntrada = true;
+                            }
+
+                            break;
+                        case DERECHA:
+
+                            // Compruebo si esta dentro del limite del tablero
+                            if (dentroLimite(tableroVaquero, filaVaquero, columnaVaquero + 1)) {
+                                if (tableroVaquero[filaVaquero][columnaVaquero + 1] == INDIO) {
+                                    vidasVaquero--;
+                                    System.out.println("vidas del Vaquero: " + vidasVaquero);
+                                }
+                                tableroVaquero[filaVaquero][columnaVaquero + 1] = VAQUERO;
+                                tableroVaquero[filaVaquero][columnaVaquero] = LIBRE;
+                                columnaVaquero++;
+
+                                errorEntrada = false;
+                            } else {
+                                System.out.println("Te has salido del tablero");
+                                errorEntrada = true;
+                            }
+
+                            break;
+                        default:
+                            System.out.println("----INTRODUCE LA TECLA CORRECTA----");
+                            errorEntrada = true;
+                    }
+                } while (errorEntrada);
+
+            }
+
+        }
+
+        if (vidasIndio == 0) {
+            System.out.println("EL INDIO HA MUERTO");
+            System.out.println("LOS VAQUEROS HAN GANADO");
+
+        } else if (vidasVaquero == 0) {
+
+            System.out.println("EL VAQUERO HA MUERTO");
+            System.out.println("LOS INDIOS HAN GANADO");
+        }
+    }
+    // FunciÃ³n`para mantener dentro del limite a los jugadores
+    public static boolean dentroLimite(char[][] matriz, int fila, int columna) {
+
+        if (fila >= 0 && fila < matriz.length && columna >= 0 && columna < matriz[0].length) {
+            return true;
+        }
+        return false;
+
+    }
+    // FunciÃ³n para mostrar el tablero de indios y vaqueros. 
+    //He puesto color rojo para el jugador de cada tablero en consola
+    public static void mostrarTablero(char[][] matriz, char caracterMarcar) {
+        for (int i = 0; i < matriz.length; i++) {
+            for (int j = 0; j < matriz[0].length; j++) {
+                if (matriz[i][j] == caracterMarcar) {
+                    System.out.print("\033[31;1m" + matriz[i][j] + "\033[0m	");
+                } else {
+                    System.out.print(matriz[i][j] + "	");
+                }
+            }
+            System.out.println("");
+        }
+    }
+    //FunciÃ³n para crear el tablero de indios y vaqueros. 
+    public static void inicializarMatriz(char[][] matriz, char caracter) {
+        for (int i = 0; i < matriz.length; i++) {
+            for (int j = 0; j < matriz[0].length; j++) {
+                matriz[i][j] = caracter;
+            }
+        }
+    }
+    // FunciÃ³n para situar en el tablero a los indios y vaqueros. 
+    public static void situarPersonajes(char[][] tablero, char personaje, int numElementos, char caracterLibre) {
+        Random random = new Random();
+        for (int i = 0; i < numElementos; i++) {
+            int filaAleatoria, columnaAleatoria;
+            do {
+                filaAleatoria = random.nextInt(tablero.length);
+                columnaAleatoria = random.nextInt(tablero[0].length);
+            } while (tablero[filaAleatoria][columnaAleatoria] != caracterLibre);
+            tablero[filaAleatoria][columnaAleatoria] = personaje;
+        }
+    }
+
+}
